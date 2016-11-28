@@ -38,31 +38,42 @@ battle.on('start', function (data) {
 battle.on('turn', function (data) {
     console.log('TURN', data);
     // TODO: render the character
+    //
+    // Primero restablecemos la configuración de html por defecto
+    //
+    document.querySelector('.parties').innerHTML = '<section id="heroes" class="party">' + 
+	'<h1>Heroes</h1> <ul class="character-list"></ul> </section> <section id="monsters"' + 
+	'class="party"> <h1>Monsters</h1> <ul class="character-list"></ul> </section>';
     var list = Object.keys(battle._charactersById);
     var render;
     var aux = battle._charactersById;
     for (var i = 0; i < list.length; i++){
         render = '<li data-chara-id="'+ list[i]+'">'+aux[list[i]].name+' (HP:<strong>'
 		+aux[list[i]].hp+'</strong>/'+aux[list[i]].maxHp+', MP: <strong>'+aux[list[i]].mp+
-		'</strong>/'+aux[list[i]].maxMp;	
+		'</strong>/'+aux[list[i]].maxMp;
+	// Porque sabemos que los unicos elementos de esta clase son las listas de party heroes y monster	
 	if(aux[list[i]].party === 'heroes'){
-	    document.getElementById('heroP').innerHTML += render;
+	    document.querySelectorAll('.party')[0].innerHTML += render;
 	}
 	else if(aux[list[i]].party === 'monsters'){
-	    document.getElementById('monsterP').innerHTML += render;
+	    document.querySelectorAll('.party')[1].innerHTML += render;
 	}
     }
     // TODO: highlight current character
     var el = document.querySelector('[data-chara-id="'+data.activeCharacterId+'"]');
     el.classList.add("active");
     // TODO: show battle actions form
-
-    //var optForm = document.querySelector('.choices');
+    //
+    // Primero reiniciamos el formulario a los valores por defecto
+    //
+    document.querySelector('[name="select-action').innerHTML = '<ul class="choices"></ul>' +
+         '<p><button type="submit">Select action</button></p>';
+    // Porque sabemos que los unicos elementos de esta clase son las listas de opciones
+    // 0 es el primer formulario que es el de accion.
     var opt = battle.options.list();
     for (var i = 0; i< opt.length;i++){
-        //document.querySelector('.choices').innerHTML = '<li><label><input type="radio" name="option" value="attack"> attack</label></li>';
-        document.querySelector('.choices').innerHTML 
-        += '<li><label><input type="radio" name="option" value="'+ opt[i]+'">'+opt[i]+'</li>';
+        document.querySelectorAll('.choices')[0].innerHTML += 
+        '<li><label><input type="radio" name="option" value="'+ opt[i]+'" required>'+opt[i]+'</li>';
     }
     document.querySelector('[name="select-action').style="display:initial";
 });
@@ -90,6 +101,8 @@ window.onload = function () {
         evt.preventDefault();
 
         // TODO: select the action chosen by the player
+        var action = actionForm.elements['option'].value;
+        battle.options.select(action);
         // TODO: hide this menu
         // TODO: go to either select target menu, or to the select spell menu
     });
