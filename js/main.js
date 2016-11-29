@@ -84,7 +84,7 @@ battle.on('info', function (data) {
 
     // TODO: display turn info in the #battle-info panel
     var name = battle._charactersById[data.activeCharacterId].name;
-    var target = battle._charactersById[data.activeCharacterId].name;
+    var target = battle._charactersById[data.targetId].name;
     var effectsTxt = prettifyEffect(data.effect || {});
     if (data.action === 'attack'){
 	if (data.success){
@@ -141,13 +141,30 @@ battle.on('end', function (data) {
     }
     // TODO: display 'end of battle' message, showing who won
     infoPanel.innerHTML = 'The ' + data.winner + ' won the battle';
+    document.body.innerHTML += '<center><form name="reset" style="display:block">' +
+                '<p><button type="submit">FIGHT AGAIN</button></p>' +
+                '</form></center>';
 });
 function writeForm(form){
     document.querySelectorAll('.choices')[form].innerHTML = '';
     var opt = battle.options.list();
     for (var i = 0; i< opt.length;i++){
-        document.querySelectorAll('.choices')[form].innerHTML += 
-        '<li><label><input type="radio" name="option" value="'+ opt[i]+'" required>'+opt[i]+'</li>';
+	if (form !== 2){
+            document.querySelectorAll('.choices')[form].innerHTML += 
+            '<li><label><input type="radio" name="option" value="'+ opt[i]+'" required>'+opt[i]+
+	    '</label></li>';
+	}
+	else{
+	    var color;
+	    if (battle._charactersById[opt[i]].party === 'heroes'){
+	        color = 'style="background:#2EE458"';
+	    }
+	    else
+		color = 'style="background:#E93915"';
+	    document.querySelectorAll('.choices')[form].innerHTML += 
+            '<li><label ' + color + '><input type="radio" name="option" value="'+ opt[i]+
+	    '" required>' + opt[i] + '</label></li>';
+	}
     }
     // Si i vale 0 es que no ha entrado en el bucle asi que el boton está desactivado,
     // si vale algo distinto lo activa
