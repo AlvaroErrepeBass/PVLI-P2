@@ -12,24 +12,66 @@ function prettifyEffect(obj) {
 
 battle.setup({
     heroes: {
-        members: [
+        members: getRandomParty('heroes'),
+            /*[
             RPG.entities.characters.heroTank,
             RPG.entities.characters.heroWizard
-        ],
+            ],*/
+        
         grimoire: [
             RPG.entities.scrolls.health,
             RPG.entities.scrolls.fireball
         ]
     },
     monsters: {
-        members: [
+        members: getRandomParty('monsters')
+        /*[
             RPG.entities.characters.monsterSlime,
             RPG.entities.characters.monsterBat,
             RPG.entities.characters.monsterSkeleton,
             RPG.entities.characters.monsterBat
-        ]
+        ]*/
     }
 });
+function getRandomParty(party){
+	var rnd = Math.floor(Math.random ()* (5 -1) + 1);
+	var rnd2;
+	var array = [];
+	if (party === 'heroes'){
+		for (var i = 0; i < rnd; i++){
+			rnd2 = Math.floor(Math.random ()* (3 -1) + 1);
+			switch (rnd2){
+				case 1: 
+				array[i] = RPG.entities.characters.heroTank;
+				break;
+				case 2:
+				array [i] = RPG.entities.characters.heroWizard;
+				break;
+			}
+		}
+
+	}
+	else {
+		for (var i = 0; i < rnd; i++){
+			rnd2 = Math.floor(Math.random ()* (4 -1) + 1);
+			switch(rnd2){
+				case 1: 
+				array[i] = RPG.entities.characters.monsterBat;
+				break;
+
+				case 2:
+				array[i] = RPG.entities.characters.monsterSkeleton;
+				break;
+
+				case 3:
+				array[i] = RPG.entities.characters.monsterSlime;
+				break;
+			}
+		}
+	}
+	
+	return array;
+}
 
 battle.on('start', function (data) {
     console.log('START', data);
@@ -43,7 +85,7 @@ battle.on('turn', function (data) {
     //
     var list = Object.keys(battle._charactersById);
     var render;
-    var partyR =document.querySelectorAll('.party');
+    var partyR =document.querySelectorAll('.character-list');
     partyR[0].innerHTML = '';
     partyR[1].innerHTML = '';
     var aux = battle._charactersById;
@@ -51,12 +93,12 @@ battle.on('turn', function (data) {
 	if (aux[list[i]].hp >0){
             render = '<li data-chara-id="'+ list[i]+'">'+aux[list[i]].name+' (HP:<strong>'
 	    +aux[list[i]].hp+'</strong>/'+aux[list[i]].maxHp+', MP: <strong>'+aux[list[i]].mp+
-	    '</strong>/'+aux[list[i]].maxMp;
+	    '</strong>/'+aux[list[i]].maxMp + ')';
 	}
 	else{
 	    render = '<li data-chara-id="'+ list[i]+'" class="dead">'+aux[list[i]].name+' (HP:<strong>'
 	    +aux[list[i]].hp+'</strong>/'+aux[list[i]].maxHp+', MP: <strong>'+aux[list[i]].mp+
-	    '</strong>/'+aux[list[i]].maxMp;
+	    '</strong>/'+aux[list[i]].maxMp + ')';
 	}
 	// Porque sabemos que los unicos elementos de esta clase son las listas de party heroes y monster	
 	if(aux[list[i]].party === 'heroes'){
@@ -116,7 +158,7 @@ battle.on('end', function (data) {
     // TODO: re-render the parties so the death of the last character gets reflected
     var list = Object.keys(battle._charactersById);
     var render;
-    var partyR =document.querySelectorAll('.party');
+    var partyR =document.querySelectorAll('.character-list');
     partyR[0].innerHTML = '';
     partyR[1].innerHTML = '';
     var aux = battle._charactersById;
@@ -124,12 +166,12 @@ battle.on('end', function (data) {
 	if (aux[list[i]].hp >0){
             render = '<li data-chara-id="'+ list[i]+'">'+aux[list[i]].name+' (HP:<strong>'
 	    +aux[list[i]].hp+'</strong>/'+aux[list[i]].maxHp+', MP: <strong>'+aux[list[i]].mp+
-	    '</strong>/'+aux[list[i]].maxMp;
+	    '</strong>/'+aux[list[i]].maxMp + ')';
 	}
 	else{
 	    render = '<li data-chara-id="'+ list[i]+'" class="dead">'+aux[list[i]].name+' (HP:<strong>'
 	    +aux[list[i]].hp+'</strong>/'+aux[list[i]].maxHp+', MP: <strong>'+aux[list[i]].mp+
-	    '</strong>/'+aux[list[i]].maxMp;
+	    '</strong>/'+aux[list[i]].maxMp + ')';
 	}
 	// Porque sabemos que los unicos elementos de esta clase son las listas de party heroes y monster	
 	if(aux[list[i]].party === 'heroes'){
