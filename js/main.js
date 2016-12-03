@@ -1,6 +1,61 @@
 var battle = new RPG.Battle();
 var actionForm, spellForm, targetForm;
 var infoPanel;
+var auxFX = 1;
+
+function sound(){
+    // No es necesario pero implementamos musica de batalla y un efecto de seleccion de opcion
+    // Usamos un audio en silencio para conseguir que se reproduzca el loop de musica de batalla
+    // justo despues de la entrada sin que se note un silencio a la hora de cargar el audio
+    var aud = document.getElementById('silence');
+    aud.onended = function (){
+        document.getElementById('battleMusic').play();
+    };
+    
+}
+
+function fx(){
+    // No es posible volver a reproducir un audio cuando ya se esta reproduciendo por eso tenemos
+    // dos elementos de audio que tienen el mismo fx y cada vez se reproduce uno distinto
+    if (auxFX === 1){
+	document.getElementById('beep1').play();
+	auxFX = 2;
+    }
+    else if (auxFX === 2){
+	document.getElementById('beep2').play();
+	auxFX = 1;
+    }
+}
+
+function writeForm(form){
+    document.querySelectorAll('.choices')[form].innerHTML = '';
+    var opt = battle.options.list();
+    for (var i = 0; i< opt.length;i++){
+	if (form !== 2){
+            document.querySelectorAll('.choices')[form].innerHTML += 
+            '<li><label><input type="radio" name="option" value="'+ opt[i]+'" required>'+opt[i]+
+	    '</label></li>';
+	}
+	else{
+	    var color;
+	    if (battle._charactersById[opt[i]].party === 'heroes'){
+	        color = 'style="background:#2EE458"';
+	    }
+	    else
+		color = 'style="background:#E93915"';
+	    document.querySelectorAll('.choices')[form].innerHTML += 
+            '<li><label ' + color + '><input type="radio" name="option" value="'+ opt[i]+
+	    '" required>' + opt[i] + '</label></li>';
+	}
+    }
+    // Si i vale 0 es que no ha entrado en el bucle asi que el boton está desactivado,
+    // si vale algo distinto lo activa
+    if (i === 0){
+        document.querySelectorAll('button[type="submit"]')[form].disabled = true;
+    }
+    else
+	document.querySelectorAll('button[type="submit"]')[form].disabled = false;
+}
 
 function prettifyEffect(obj) {
     return Object.keys(obj).map(function (key) {
@@ -9,30 +64,6 @@ function prettifyEffect(obj) {
     }).join(', ');
 }
 
-
-battle.setup({
-    heroes: {
-        members: getRandomParty('heroes'),
-            /*[
-            RPG.entities.characters.heroTank,
-            RPG.entities.characters.heroWizard
-            ],*/
-        
-        grimoire: [
-            RPG.entities.scrolls.health,
-            RPG.entities.scrolls.fireball
-        ]
-    },
-    monsters: {
-        members: getRandomParty('monsters')
-        /*[
-            RPG.entities.characters.monsterSlime,
-            RPG.entities.characters.monsterBat,
-            RPG.entities.characters.monsterSkeleton,
-            RPG.entities.characters.monsterBat
-        ]*/
-    }
-});
 function getRandomParty(party){
 	var rnd = Math.floor(Math.random ()* (5 -1) + 1);
 	var rnd2;
@@ -73,6 +104,30 @@ function getRandomParty(party){
 	return array;
 }
 
+battle.setup({
+    heroes: {
+        members: getRandomParty('heroes'),
+            /*[
+            RPG.entities.characters.heroTank,
+            RPG.entities.characters.heroWizard
+            ],*/
+        
+        grimoire: [
+            RPG.entities.scrolls.health,
+            RPG.entities.scrolls.fireball
+        ]
+    },
+    monsters: {
+        members: getRandomParty('monsters')
+        /*[
+            RPG.entities.characters.monsterSlime,
+            RPG.entities.characters.monsterBat,
+            RPG.entities.characters.monsterSkeleton,
+            RPG.entities.characters.monsterBat
+        ]*/
+    }
+});
+
 battle.on('start', function (data) {
     console.log('START', data);
 });
@@ -85,7 +140,7 @@ battle.on('turn', function (data) {
     //
     var list = Object.keys(battle._charactersById);
     var render;
-    var partyR =document.querySelectorAll('.character-list');
+    var partyR = document.querySelectorAll('.character-list');
     partyR[0].innerHTML = '';
     partyR[1].innerHTML = '';
     var aux = battle._charactersById;
@@ -186,41 +241,16 @@ battle.on('end', function (data) {
     document.body.innerHTML += '<center><form name="reset" style="display:block">' +
                 '<p><button type="submit">FIGHT AGAIN</button></p>' +
                 '</form></center>';
+    var vMusic = '<audio id="victory" autoplay src="sound/Victory.ogg"></audio>';
+    document.querySelector('.sound').innerHTML = vMusic;
 });
-function writeForm(form){
-    document.querySelectorAll('.choices')[form].innerHTML = '';
-    var opt = battle.options.list();
-    for (var i = 0; i< opt.length;i++){
-	if (form !== 2){
-            document.querySelectorAll('.choices')[form].innerHTML += 
-            '<li><label><input type="radio" name="option" value="'+ opt[i]+'" required>'+opt[i]+
-	    '</label></li>';
-	}
-	else{
-	    var color;
-	    if (battle._charactersById[opt[i]].party === 'heroes'){
-	        color = 'style="background:#2EE458"';
-	    }
-	    else
-		color = 'style="background:#E93915"';
-	    document.querySelectorAll('.choices')[form].innerHTML += 
-            '<li><label ' + color + '><input type="radio" name="option" value="'+ opt[i]+
-	    '" required>' + opt[i] + '</label></li>';
-	}
-    }
-    // Si i vale 0 es que no ha entrado en el bucle asi que el boton está desactivado,
-    // si vale algo distinto lo activa
-    if (i === 0){
-        document.querySelectorAll('button[type="submit"]')[form].disabled = true;
-    }
-    else
-	document.querySelectorAll('button[type="submit"]')[form].disabled = false;
-}
+
 window.onload = function () {
     actionForm = document.querySelector('form[name=select-action]');
     targetForm = document.querySelector('form[name=select-target]');
     spellForm = document.querySelector('form[name=select-spell]');
     infoPanel = document.querySelector('#battle-info');
+    sound();
 
     actionForm.addEventListener('submit', function (evt) {
         evt.preventDefault();
@@ -239,7 +269,12 @@ window.onload = function () {
 	    writeForm(2);
 	    targetForm.style="display:block";
 	}
+	fx();
     });
+
+    actionForm.onchange = function(){
+	fx();
+    };
 
     targetForm.addEventListener('submit', function (evt) {
         evt.preventDefault();
@@ -248,7 +283,12 @@ window.onload = function () {
         battle.options.select(action);
         // TODO: hide this menu
 	targetForm.style="display:none";
+	fx();
     });
+
+    targetForm.onchange = function(){
+	fx();
+    };
 
     targetForm.querySelector('.cancel')
     .addEventListener('click', function (evt) {
@@ -260,6 +300,7 @@ window.onload = function () {
         // TODO: go to select action menu
 	writeForm(0);
         actionForm.style="display:block";
+	fx();
     });
 
     spellForm.addEventListener('submit', function (evt) {
@@ -272,7 +313,12 @@ window.onload = function () {
         // TODO: go to select target menu
 	writeForm(2);
         targetForm.style="display:block";
+	fx();
     });
+
+    spellForm.onchange = function(){
+	fx();
+    };
 
     spellForm.querySelector('.cancel')
     .addEventListener('click', function (evt) {
@@ -284,6 +330,7 @@ window.onload = function () {
         // TODO: go to select action menu
 	writeForm(0);
         actionForm.style="display:block";
+	fx();
     });
 
     battle.start();

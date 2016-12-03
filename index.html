@@ -12,6 +12,13 @@
 <body>
     <h1>RPG Battle</h1>
     <main>
+       <section class="sound">
+           <audio id="silence" autoplay src="sound/silence.ogg"></audio>
+           <audio id="battleMusic" src="sound/Battle.ogg" loop></audio>
+           <audio id="ini" autoplay src="sound/IniBattle.ogg"></audio>
+           <audio id="beep1" src="sound/select.ogg"></audio>
+           <audio id="beep2" src="sound/select.ogg"></audio>
+       </section>
        <section class="parties">
             <section id="heroes" class="party">
                 <h1>Heroes</h1>
@@ -32,6 +39,7 @@
                 <ul class="choices"></ul>
 
                 <p><button type="submit">Select action</button></p>
+
             </form>
 
             <form name="select-spell" style="display:none">
